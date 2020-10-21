@@ -30,11 +30,13 @@ class MPC(object):
                                   max_itrs = self.max_itrs,
                                   verbose=False)
         cost = optimizer.run()
-        #print("Solution: ",optimizer.solution[0])
-        #print("Fitness Value ABC: {0}".format(optimizer.best))
+        print("Cost: ", cost)
+        print("Solution: ", optimizer.solution)
+        print("Fitness Value ABC: {0}".format(optimizer.best))
         # Uncomment this if you want to see the performance of the optimizer
         #Utilities.ConvergencePlot(cost)
         return optimizer.solution[0]
+
 
 class Evaluator(object):
     def __init__(self, gamma=0.8):

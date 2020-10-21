@@ -10,19 +10,22 @@ import time
 # datasets:  numpy array, size:[sample number, input dimension]
 # labels:  numpy array, size:[sample number, output dimension]
 
-env_id ="Qube-v0" # "CartPole-v0"
+env_id ="Qube-100-v0" # "CartPole-v0"
 env = GentlyTerminating(gym.make(env_id))
 config_path = "config.yml"
 config = load_config(config_path)
 print_config(config_path)
 
+# model 是对环境的建模
 model = DynamicModel(config)
 
 data_fac = DatasetFactory(env,config)
 data_fac.collect_random_dataset()
 
-loss = model.train(data_fac.random_trainset,data_fac.random_testset)
+# loss 函数
+loss = model.train(data_fac.random_trainset, data_fac.random_testset)
 
+# mpc 是实例化的最优化控制策略
 mpc = MPC(env,config)
 
 rewards_list = []
@@ -30,7 +33,7 @@ for itr in range(config["dataset_config"]["n_mpc_itrs"]):
     t = time.time()
     print("**********************************************")
     print("The reinforce process [%s], collecting data ..." % itr)
-    rewards = data_fac.collect_mpc_dataset(mpc, model)
+    rewards = data_fac.collect_mpc_dataset(mpc, model, render=False)
     trainset, testset = data_fac.make_dataset()
     rewards_list += rewards
 

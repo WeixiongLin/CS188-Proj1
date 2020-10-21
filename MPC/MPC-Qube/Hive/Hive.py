@@ -97,6 +97,8 @@ class Bee(object):
         else:
             self.fitness = 1 + abs(self.value)
 
+
+
 class BeeHive(object):
     """
 
@@ -112,11 +114,13 @@ class BeeHive(object):
     The employed bees and onlooker bees exploit the nectar
     sources around the hive - i.e. exploitation phase - while the
     scouts explore the solution domain - i.e. exploration phase.
-
+    被雇佣的蜜蜂和旁观者蜜蜂利用蜂巢周围的蜜源——即开发阶段——而侦察员则探索解决方案领域——即探索阶段。
+    
     The number of nectar sources around the hive is equal to
     the number of actively employed bees and the number of employees
     is equal to the number of onlooker bees.
 
+    蜂巢周围蜜源的数量等于活跃蜜蜂的数量，雇员的数量等于旁观蜜蜂的数量。
     """
 
     def run(self):

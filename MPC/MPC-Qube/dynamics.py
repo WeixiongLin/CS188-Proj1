@@ -342,12 +342,15 @@ class DatasetFactory(object):
         datasets = []
         labels = []
         reward_episodes = []
+        # n_mpc_episodes = 4: how many episodes data sampled with the MPC controller
+        # 使用 MPC 控制器采集了多少集数据
         for i in range(self.n_mpc_episodes):
             data_tmp = []
             label_tmp = []
             reward_episode = 0
             state_old = self.env.reset()
             for j in range(self.n_max_steps):
+                # n_max_steps = 500: 如果这么多步之后仍然没有到达 done 状态就停止
                 if render:
                     self.env.render()
                 action = mpc.act(state_old, dynamic_model)

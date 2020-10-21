@@ -28,7 +28,7 @@ dataset_config:
     n_mpc_episodes: 4 # how many episodes data sampled with the MPC controller
     mpc_dataset_split: 0.5 # mpc dataset's portion in the training set
     min_train_samples: 8000
-    n_mpc_itrs: 100 # the number to perform reinforce iteration
+    n_mpc_itrs: 10 # the number to perform reinforce iteration
     save_flag: True # set True if you want to save all the dataset
     save_path: "storage/data_exp_7.pkl"
 

@@ -15,7 +15,7 @@ def test(mpc, model):
         reward_episode = 0
         state_old = data_fac.env.reset()
         for j in range(data_fac.n_max_steps):
-            env.render()
+            # env.render()
             action = mpc.act(state_old, model)
             action = np.array([action])
             data_tmp.append(np.concatenate((state_old, action)))
@@ -29,7 +29,7 @@ def test(mpc, model):
         print(f"Episode [{i}/{data_fac.n_mpc_episodes}], Reward: {reward_episode:.8f}")
     return reward_episodes
 
-env_id ="Qube-v0" # "CartPole-v0"
+env_id ="Qube-100-v0" # "CartPole-v0"
 env = GentlyTerminating(gym.make(env_id))
 config_path = "config.yml"
 config = load_config(config_path)
@@ -46,7 +46,7 @@ model.norm_train_data(data_fac.all_dataset["data"],data_fac.all_dataset["label"]
 mpc = MPC(env,config)
 
 rewards_list = []
-for itr in range(config["dataset_config"]["n_mpc_itrs"]):
+for itr in range(1):
     t = time.time()
     print("**********************************************")
     print("The reinforce process [%s], collecting data ..." % itr)

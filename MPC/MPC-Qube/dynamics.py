@@ -121,11 +121,11 @@ class DynamicModel(object):
         :return: (numpy array) next state numpy array
         '''
         x = np.array(x)
-        x = self.pre_process(x)
+        # x = self.pre_process(x)
         x_tensor = self.Variable(torch.FloatTensor(x).unsqueeze(0), volatile=True) # not sure here
         out_tensor = self.model(x_tensor)
         out = out_tensor.cpu().detach().numpy()
-        out = self.after_process(out)
+        # out = self.after_process(out)
         return out
 
     def pre_process(self, x):

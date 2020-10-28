@@ -21,7 +21,7 @@ def predict(model, x):
     # x = self.pre_process(x)
     # x_tensor = Variable(torch.FloatTensor(x).unsqueeze(0), volatile=True) # not sure here
     x_tensor = torch.Tensor(x)
-    print("x_tensor", x_tensor)
+    # print("x_tensor", x_tensor)
     out_tensor = model(x_tensor)
     out = out_tensor.cpu().detach().numpy()
     # out = self.after_process(out)
@@ -55,14 +55,15 @@ def evaluate(model, gamma, state, action):
     horizon = actions.shape[0]
     rewards = 0
     state_tmp = state.copy()
+    state_tmp = state_tmp[:-1]
     for j in range(horizon):
         # input_data = np.concatenate( (state_tmp, [actions[j]]) )
         input_data = state_tmp
-        state_dt = predict(model, input_data)
-        print("state_dt", state_dt[0][0])
-        print("state_tmp", state_tmp)
-        state_tmp = state_tmp + state_dt[0][0]
-        rewards -= (gamma ** j) * get_reward(state_tmp, actions[j])
+        state_dt = predict(model, np.append(input_data, actions[j]))
+        # print("state_dt", type(state_dt))  # 5 个元素
+        # print("state_tmp", type(state_tmp))  # 6 个元素
+        state_tmp = state_tmp + state_dt[0]
+        rewards -= (gamma ** j) * get_reward(np.append(state_tmp, actions[j]), actions[j])
     return rewards
 
 
@@ -100,49 +101,60 @@ model = model.cpu()
 
 
 # 共进行 num_actions=10 次对最佳 policy 的探索
-for i in range(num_actions):
-    action = [random.random() for x in range(5)]  # 随机生成初始的 action
-    data_tmp = []
-    label_tmp = []
-    state_old = env.reset()  # 最开始的 old_state 是环境的初状态
-    reward_episode = 0  # 一个 episode 之后 actions 带来的总的 reward
 
-    left_action = np.array([action_low] * 5)
-    right_action = np.array([action_high] * 5)
-    cur_action = []
-    for i in range(5):
-        cur_action.append( left_action + random.random() * (right_action - left_action) )
-    cur_action = np.array(cur_action)
-    
-    epsilon = 0.1  # 只要 action 的变化量大于 epsilon 就说明没有收敛
-    action_delta = 1  # action 更新的变化量
-    
-    # 每一次探索的上限是 500 steps
-    for j in range(n_max_steps):
-        print("step: {j}")
-        if render:
-            env.render()
-        # 更新 action, 向前走5步
-        # 要 minimize reward
-        while(action_delta > epsilon):
-            action_delta = 0
-            for step in range(5):  # 依次更新每一个 action
-                left_reward = evaluate(model, gamma, state, left_action)
-                right_reward = evaluate(model, gamma, state, right_action)
-                if left_reward > right_reward:
-                    action_delta += abs(cur_action[step] - right_action[step])
-                    left_action[step] = cur_action[step]
-                    cur_action[step] = (right_action[step] + cur_action[step]) / 2
-                else:
-                    action_delta += abs(cur_action[step] - left_action[step])
-                    right_action[step] = cur_action[step]
-                    cur_action[step] = (left_action[step] + cur_action[step]) / 2
 
-        action = cur_action
-        data_tmp.append(np.concatenate((state_old, action)))
-        state_new, reward, done, info = env.step(action)
-        reward_episode += reward
-        label_tmp.append(state_new - state_old)
-        if done:
-            break
-        state_old = state_new
+def shooting():
+    action_trace = []
+    for i in range(num_actions):
+        action = [random.random() for x in range(5)]  # 随机生成初始的 action
+        label_tmp = []
+        state_old = env.reset()  # 最开始的 old_state 是环境的初状态
+        reward_episode = 0  # 一个 episode 之后 actions 带来的总的 reward
+
+        left_action = np.array([action_low] * 5)
+        right_action = np.array([action_high] * 5)
+        cur_action = []
+        for tmp in range(5):
+            cur_action.append( left_action[tmp] + random.random() * (right_action[tmp] - left_action[tmp]) )
+        cur_action = np.array(cur_action)
+        
+        epsilon = 0.1  # 只要 action 的变化量大于 epsilon 就说明没有收敛
+        action_delta = 1  # action 更新的变化量
+        
+        # 每一次探索的上限是 500 steps
+        for j in range(n_max_steps):
+            print("step: {}", j)
+            if render:
+                env.render()
+            # 更新 action, 向前走5步
+            # 要 minimize reward
+            while(action_delta > epsilon):
+                action_delta = 0
+                for step in range(5):  # 依次更新每一个 action
+                    left_reward = evaluate(model, gamma, state, left_action)
+                    right_reward = evaluate(model, gamma, state, right_action)
+                    if left_reward > right_reward:
+                        action_delta += abs(cur_action[step] - right_action[step])
+                        left_action[step] = cur_action[step]
+                        cur_action[step] = (right_action[step] + cur_action[step]) / 2
+                    else:
+                        action_delta += abs(cur_action[step] - left_action[step])
+                        right_action[step] = cur_action[step]
+                        cur_action[step] = (left_action[step] + cur_action[step]) / 2
+            
+            action_trace.append(cur_action)
+            horizen = 5
+            for step in range(horizen):
+                action = cur_action[step]
+                # print("action", action)
+                state_new, reward, done, info = env.step(np.array([action]))
+                reward_episode += reward
+                label_tmp.append(state_new - state_old)
+                if done:
+                    return action_trace, j
+                state_old = state_new
+
+
+trace, step_index = shooting()
+print("trace", trace)
+print("step_index", step_index)

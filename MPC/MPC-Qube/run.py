@@ -59,7 +59,9 @@ def evaluate(model, gamma, state, action):
         # input_data = np.concatenate( (state_tmp, [actions[j]]) )
         input_data = state_tmp
         state_dt = predict(model, input_data)
-        state_tmp = state_tmp + state_dt[0]
+        print("state_dt", state_dt[0][0])
+        print("state_tmp", state_tmp)
+        state_tmp = state_tmp + state_dt[0][0]
         rewards -= (gamma ** j) * get_reward(state_tmp, actions[j])
     return rewards
 

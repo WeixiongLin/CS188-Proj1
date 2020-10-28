@@ -56,7 +56,7 @@ class Evaluator(object):
             rewards -= (self.gamma ** j) * self.get_reward(state_tmp, actions[j])
         return rewards
 
-    def get_reward(self,obs, action_n):
+    def get_reward(self, obs, action_n):
         cos_th, sin_th, cos_al, sin_al, th_d, al_d = obs
         cos_th = min(max(cos_th, -1), 1)
         cos_al = min(max(cos_al, -1), 1)

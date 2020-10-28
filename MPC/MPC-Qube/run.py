@@ -9,6 +9,61 @@ import time
 import random
 import numpy as np
 
+
+def predict(model, x):
+    '''
+    Given the current state and action, predict the next state
+
+    :param x: (numpy array) current state and action in one array
+    :return: (numpy array) next state numpy array
+    '''
+    x = np.array(x)
+    # x = self.pre_process(x)
+    # x_tensor = Variable(torch.FloatTensor(x).unsqueeze(0), volatile=True) # not sure here
+    x_tensor = torch.Tensor(x)
+    print("x_tensor", x_tensor)
+    out_tensor = model(x_tensor)
+    out = out_tensor.cpu().detach().numpy()
+    # out = self.after_process(out)
+    return out
+
+
+def get_reward(obs, action_n):
+    cos_th, sin_th, cos_al, sin_al, th_d, al_d = obs
+    cos_th = min(max(cos_th, -1), 1)
+    cos_al = min(max(cos_al, -1), 1)
+    al=np.arccos(cos_al)
+    th=np.arccos(cos_th)
+    al_mod = al % (2 * np.pi) - np.pi
+    action = action_n * 5
+    cost = al_mod**2 + 5e-3*al_d**2 + 1e-1*th**2 + 2e-2*th_d**2 + 3e-3*action**2
+    reward = np.exp(-cost)*0.02
+    return reward
+
+
+# 重写 evaluate 函数, 因为 load 进来的 model 是 MPC 而不是 Dynamic_model
+# 所以需要进行精简和改写
+def evaluate(model, gamma, state, action):
+    """
+    model = MPC
+    gamma: decay rate
+    state = [] 5 个元素
+    action = [] 5 个元素, 表示之后 5 个 step 的动作
+    """
+    acc = 0  # 统计5 step 的 acc
+    actions = np.array(action)
+    horizon = actions.shape[0]
+    rewards = 0
+    state_tmp = state.copy()
+    for j in range(horizon):
+        # input_data = np.concatenate( (state_tmp, [actions[j]]) )
+        input_data = state_tmp
+        state_dt = predict(model, input_data)
+        state_tmp = state_tmp + state_dt[0]
+        rewards -= (gamma ** j) * get_reward(state_tmp, actions[j])
+    return rewards
+
+
 # datasets:  numpy array, size:[sample number, input dimension]
 # labels:  numpy array, size:[sample number, output dimension]
 
@@ -18,39 +73,6 @@ config_path = "config.yml"
 config = load_config(config_path)
 print_config(config_path)
 
-# model = DynamicModel(config)
-
-# data_fac = DatasetFactory(env,config)
-# data_fac.collect_random_dataset()
-
-# loss = model.train(data_fac.random_trainset,data_fac.random_testset)
-
-# mpc = MPC(env,config)
-
-# rewards_list = []
-# for itr in range(config["dataset_config"]["n_mpc_itrs"]):
-#     t = time.time()
-#     print("**********************************************")
-#     print("The reinforce process [%s], collecting data ..." % itr)
-    # rewards = data_fac.collect_mpc_dataset(mpc, model)
-    # trainset, testset = data_fac.make_dataset()
-    # rewards_list += rewards
-
-    # 正式开始编写 random shooting 的算法
-    # 1. 建立 action[5]
-    # gamma = 0.999
-    # evaluator = Evaluator(gamma)
-
-    # 2. 根据 reward 进行 action 的收敛工作
-    # 3. reward_list append
-
-    # plt.close("all")
-    # plt.figure(figsize=(12, 5))
-    # plt.title('Reward Trend with %s iteration' % itr)
-    # plt.plot(rewards_list)
-    # plt.savefig("storage/reward-" + str(model.exp_number) + ".png")
-    # print("Consume %s s in this iteration" % (time.time() - t))
-    # loss = model.train(trainset, testset)
 
 env = GentlyTerminating(gym.make(env_id))
 n_max_steps = 500
@@ -60,6 +82,19 @@ action_tmp = []  # 用来存放 num_actions=10 次探索结果, 然后选取 ste
 
 action_low = config["mpc_config"]["action_low"]
 action_high = config["mpc_config"]["action_high"]
+gamma = config["mpc_config"]["gamma"]
+
+# 定义对 NewState 的评价函数
+state = env.reset()
+# state = torch.Tensor([0,0,0,0,0,0])
+
+model = torch.load('exp_1.ckpt')
+model = model.cpu()
+# 预测 NewState
+# out = model(state+action)
+
+# evaluator = Evaluator(gamma=gamma)
+# evaluator.update(state=state, dynamic_model=model)
 
 
 # 共进行 num_actions=10 次对最佳 policy 的探索
@@ -90,8 +125,8 @@ for i in range(num_actions):
         while(action_delta > epsilon):
             action_delta = 0
             for step in range(5):  # 依次更新每一个 action
-                left_reward = evaluate(left_action)
-                right_reward = evaluate(right_action)
+                left_reward = evaluate(model, gamma, state, left_action)
+                right_reward = evaluate(model, gamma, state, right_action)
                 if left_reward > right_reward:
                     action_delta += abs(cur_action[step] - right_action[step])
                     left_action[step] = cur_action[step]

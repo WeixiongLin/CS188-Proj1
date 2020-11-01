@@ -29,7 +29,7 @@ def test(mpc, model):
         print(f"Episode [{i}/{data_fac.n_mpc_episodes}], Reward: {reward_episode:.8f}")
     return reward_episodes
 
-env_id ="Qube-v0" # "CartPole-v0"
+env_id ="Qube-100-v0" # "CartPole-v0"
 env = GentlyTerminating(gym.make(env_id))
 config_path = "config.yml"
 config = load_config(config_path)

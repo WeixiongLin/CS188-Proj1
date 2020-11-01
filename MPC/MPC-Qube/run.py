@@ -33,7 +33,7 @@ for itr in range(config["dataset_config"]["n_mpc_itrs"]):
     t = time.time()
     print("**********************************************")
     print("The reinforce process [%s], collecting data ..." % itr)
-    rewards = data_fac.collect_mpc_dataset(mpc, model, render=False)
+    rewards = data_fac.collect_mpc_dataset(mpc, model, render=True)
     trainset, testset = data_fac.make_dataset()
     rewards_list += rewards
 

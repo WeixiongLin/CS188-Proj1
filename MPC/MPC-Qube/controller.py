@@ -1,6 +1,5 @@
 import numpy as np
-from Hive import Hive
-from Hive import Utilities
+from canyon import *
 
 
 class MPC(object):
@@ -23,12 +22,9 @@ class MPC(object):
         :return: (float) optimal action
         '''
         self.evaluator.update(state, dynamic_model)
-        optimizer = Hive.BeeHive( lower = [float(self.action_low)] * self.horizon,
-                                  upper = [float(self.action_high)] * self.horizon,
-                                  fun = self.evaluator.evaluate,
-                                  numb_bees = self.numb_bees,
-                                  max_itrs = self.max_itrs,
-                                  verbose=False)
+        optimizer = Canyon( lower = [float(self.action_low)] * self.horizon,
+                            upper = [float(self.action_high)] * self.horizon,
+                            fun = self.evaluator.evaluate)
         cost = optimizer.run()
         print("Cost: ", cost)
         print("Solution: ", optimizer.solution)

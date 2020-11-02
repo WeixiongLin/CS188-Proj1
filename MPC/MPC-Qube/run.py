@@ -6,6 +6,7 @@ from controller import *
 from utils import *
 from quanser_robots.common import GentlyTerminating
 import time
+import torch
 
 # datasets:  numpy array, size:[sample number, input dimension]
 # labels:  numpy array, size:[sample number, output dimension]
@@ -20,10 +21,10 @@ print_config(config_path)
 model = DynamicModel(config)
 
 data_fac = DatasetFactory(env,config)
-data_fac.collect_random_dataset()
+# data_fac.collect_random_dataset()
 
 # loss 函数
-loss = model.train(data_fac.random_trainset, data_fac.random_testset)
+# loss = model.train(data_fac.random_trainset, data_fac.random_testset)
 
 # mpc 是实例化的最优化控制策略
 mpc = MPC(env,config)
@@ -33,7 +34,7 @@ for itr in range(config["dataset_config"]["n_mpc_itrs"]):
     t = time.time()
     print("**********************************************")
     print("The reinforce process [%s], collecting data ..." % itr)
-    rewards = data_fac.collect_mpc_dataset(mpc, model, render=False)
+    rewards = data_fac.collect_mpc_dataset(mpc, model, render=True)
     trainset, testset = data_fac.make_dataset()
     rewards_list += rewards
 
@@ -43,4 +44,4 @@ for itr in range(config["dataset_config"]["n_mpc_itrs"]):
     plt.plot(rewards_list)
     plt.savefig("storage/reward-" + str(model.exp_number) + ".png")
     print("Consume %s s in this iteration" % (time.time() - t))
-    loss = model.train(trainset, testset)
+    # loss = model.train(trainset, testset)

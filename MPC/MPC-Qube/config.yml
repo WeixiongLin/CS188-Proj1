@@ -20,7 +20,7 @@ training_config:
     exp_number: 7  # experiment number
 
 dataset_config:
-    load_flag: False 
+    load_flag: True
     load_path: "storage/data_exp_7.pkl"     
     n_max_steps: 500 # maximum steps per episode
     n_random_episodes: 700 # how many random episodes' data to fit the initial dynamic model

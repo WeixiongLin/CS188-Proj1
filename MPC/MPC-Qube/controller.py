@@ -25,10 +25,8 @@ class MPC(object):
         optimizer = Canyon( lower = [float(self.action_low)] * self.horizon,
                             upper = [float(self.action_high)] * self.horizon,
                             fun = self.evaluator.evaluate)
-        cost = optimizer.run()
-        print("Cost: ", cost)
-        print("Solution: ", optimizer.solution)
-        print("Fitness Value ABC: {0}".format(optimizer.best))
+        optimizer.run()
+        print("Solution: ", optimizer.solution[0])
         # Uncomment this if you want to see the performance of the optimizer
         #Utilities.ConvergencePlot(cost)
         return optimizer.solution[0]

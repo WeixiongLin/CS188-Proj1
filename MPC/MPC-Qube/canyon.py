@@ -13,8 +13,7 @@ class Canyon(object):
         self.lower = lower
         self.upper = upper
         self.horizen = len(self.lower)
-        self.evaluator = fun
-        self.max_itrs = max_itrs
+        self.evaluate = fun
         self.solution = None
     
     def run(self):
@@ -24,8 +23,12 @@ class Canyon(object):
         render = False
         left_action = self.lower
         right_action = self.upper
+
         cur_action = []
-        action_trace = []
+        for tmp in range(self.horizen):
+            cur_action.append( left_action[tmp] + random.random() * (right_action[tmp] - left_action[tmp]) )
+        cur_action = np.array(cur_action)
+
         label_tmp = []
 
         while(action_delta > epsilon):
@@ -41,5 +44,5 @@ class Canyon(object):
                     action_delta += abs(cur_action[step] - left_action[step])
                     right_action[step] = cur_action[step]
                     cur_action[step] = (left_action[step] + cur_action[step]) / 2
-        
-        return action_trace
+        self.solution = cur_action
+        return cur_action

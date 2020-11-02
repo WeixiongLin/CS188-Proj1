@@ -125,7 +125,7 @@ class DynamicModel(object):
         x_tensor = self.Variable(torch.FloatTensor(x).unsqueeze(0), volatile=True) # not sure here
         out_tensor = self.model(x_tensor)
         out = out_tensor.cpu().detach().numpy()
-        out = self.after_process(out)
+        # out = self.after_process(out)
         return out
 
     def pre_process(self, x):
@@ -351,6 +351,7 @@ class DatasetFactory(object):
             state_old = self.env.reset()
             for j in range(self.n_max_steps):
                 # n_max_steps = 500: 如果这么多步之后仍然没有到达 done 状态就停止
+                print("step", j)
                 if render:
                     self.env.render()
                 action = mpc.act(state_old, dynamic_model)

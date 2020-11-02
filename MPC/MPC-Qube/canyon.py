@@ -36,7 +36,7 @@ class Canyon(object):
             for step in range(self.horizen):  # 依次更新每一个 action
                 left_reward = self.evaluate(left_action)
                 right_reward = self.evaluate(right_action)
-                if left_reward > right_reward:
+                if left_reward < right_reward:
                     action_delta += abs(cur_action[step] - right_action[step])
                     left_action[step] = cur_action[step]
                     cur_action[step] = (right_action[step] + cur_action[step]) / 2

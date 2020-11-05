@@ -45,5 +45,5 @@ class Canyon(object):
                     right_action[step] = cur_action[step]
                     cur_action[step] = (left_action[step] + cur_action[step]) / 2
         self.solution = cur_action
-        cur_reward = self.evaluate(cur_action)
+        cur_reward = -self.evaluate(cur_action)
         return cur_action, cur_reward

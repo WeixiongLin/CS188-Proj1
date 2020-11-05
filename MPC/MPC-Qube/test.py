@@ -58,4 +58,3 @@ for itr in range(config["dataset_config"]["n_mpc_itrs"]):
     plt.plot(rewards_list)
     plt.savefig("storage/reward-" + str(model.exp_number) + "_test.png")
     print("Consume %s s in this iteration" % (time.time() - t))
-    loss = model.trai

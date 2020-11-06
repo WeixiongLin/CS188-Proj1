@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.autograd as autograd
 import pickle
+import matplotlib
 from utils import *
 
 class MLP(nn.Module):
@@ -193,6 +194,7 @@ class DynamicModel(object):
         '''
         Save the loss figures
         '''
+        matplotlib.use('Agg')
         plt.clf()
         plt.close("all")
         plt.figure(figsize=(12, 5))
@@ -351,7 +353,6 @@ class DatasetFactory(object):
             state_old = self.env.reset()
             for j in range(self.n_max_steps):
                 # n_max_steps = 500: 如果这么多步之后仍然没有到达 done 状态就停止
-                print("step", j)
                 if render:
                     self.env.render()
                 action = mpc.act(state_old, dynamic_model)

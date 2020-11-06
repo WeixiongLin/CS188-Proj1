@@ -24,7 +24,7 @@ def load_config(config_path="config.yml"):
     else:
         raise Exception("Configuration file is not found in the path: "+config_path)
 
-def print_config(config_path="config.yml"):
+def print_config(config=config):
     if os.path.isfile(config_path):
         f = open(config_path)
         config = yaml.load(f)

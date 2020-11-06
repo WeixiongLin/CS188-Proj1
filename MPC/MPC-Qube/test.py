@@ -15,9 +15,10 @@ def test(mpc, model):
         reward_episode = 0
         state_old = data_fac.env.reset()
         for j in range(data_fac.n_max_steps):
-            env.render()
+            # env.render()
             action = mpc.act(state_old, model)
             action = np.array([action])
+            # print("action", action)
             data_tmp.append(np.concatenate((state_old, action)))
             state_new, reward, done, info = data_fac.env.step(action)
             reward_episode += reward

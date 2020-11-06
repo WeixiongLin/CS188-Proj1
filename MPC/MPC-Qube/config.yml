@@ -34,7 +34,7 @@ dataset_config:
 
 # MPC controller configuration
 mpc_config:
-    horizon: 5 # how long of the horizon to predict
+    horizon: 20 # how long of the horizon to predict
     numb_bees: 4 # ABC optimization algorithm param: number of the bees
     max_itrs: 10 # max iterations for the ABC optimization
     gamma: 0.999 # reward discount coefficient
